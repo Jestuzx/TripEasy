@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% if is_invalid_data %}
+        <h3>Username or email is already taken</h3>
+    {% endif %}
+    <form method="post">
+        <input name="username" type="text" placeholder="Enter your username:">
+        <input name="password" type="password" placeholder="Enter your password:">
+        <input name="email" type="email"placeholder="Enter your email: ">
+        <input type="submit" value="Enter">
+    </form>
+</body>
+</html>
