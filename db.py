@@ -34,7 +34,6 @@ class User(ModelDateDataMixin):
     password = Column(String(256), nullable=False)
     email = Column(String(),nullable=False,unique=True)
 
-
 class Tour(ModelDateDataMixin):
     __tablename__ = 'tour'
 
