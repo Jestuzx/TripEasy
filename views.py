@@ -1,3 +1,4 @@
+from pydantic_core.core_schema import str_schema
 from sqlalchemy.orm import Session
 from functools import wraps
 from sqlalchemy.exc import IntegrityError
@@ -41,4 +42,17 @@ async def register(
     except IntegrityError:
         db.rollback()
         return RedirectResponse('/registration?is_invalid_data=True', status_code=303)
+    return RedirectResponse('/', status_code=303)
+
+@app.get('/login', response_class=HTMLResponse)
+async def get_login(request: Request):
+    return templates.TemplateResponse('login.html', {'request': request})
+
+@app.post('/login')
+async def post_login(request: Request, username: str = Form(), password: str = Form(), db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(username=username, password=password).first()
+    if user is None:
+        return RedirectResponse('/login', status_code=303)
+    request.session['is_authenticated'] = True
+    request.session['user_id'] = user.id
     return RedirectResponse('/', status_code=303)
