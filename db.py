@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
@@ -33,6 +33,7 @@ class User(ModelDateDataMixin):
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(256), nullable=False)
     email = Column(String(),nullable=False,unique=True)
+    is_admin = Column(Boolean,default=False)
 
 class Tour(ModelDateDataMixin):
     __tablename__ = 'tour'

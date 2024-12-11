@@ -2,9 +2,8 @@ from pydantic_core.core_schema import str_schema
 from sqlalchemy.orm import Session
 from functools import wraps
 from sqlalchemy.exc import IntegrityError
-
 from config import app, templates
-from db import get_db, User, Tour
+from db import get_db, User, Tour, SessionLocal
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import Request, Form, Depends, File, Response, UploadFile
 
@@ -13,6 +12,14 @@ def login_required(view):
     async def wrapped(request: Request, *args, **kwargs):
         if not request.session.get('is_authenticated', False):
             return RedirectResponse('/login')
+        return await view(request, *args, **kwargs)
+    return wrapped
+
+def admin_required(view):
+    @wraps(view)
+    async def wrapped(request:Request, *args, **kwargs):
+        if not request.session.get('is_admin', False):
+            return RedirectResponse('/')
         return await view(request, *args, **kwargs)
     return wrapped
 
@@ -55,4 +62,21 @@ async def post_login(request: Request, username: str = Form(), password: str = F
         return RedirectResponse('/login', status_code=303)
     request.session['is_authenticated'] = True
     request.session['user_id'] = user.id
+    request.session['is_admin'] = user.is_admin
     return RedirectResponse('/', status_code=303)
+
+
+def grant_admin(username: str):
+    db: Session = SessionLocal()
+    try:
+        user = db.query(User).filter_by(username=username).first()
+        if not user:
+            print(f"User '{username}' not found!")
+            return
+        user.is_admin = True
+        db.commit()
+        print(f"User '{username}' is now an admin.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close()
