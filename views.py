@@ -6,6 +6,8 @@ from config import app, templates
 from db import get_db, User, Tour, SessionLocal
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import Request, Form, Depends, File, Response, UploadFile
+from fastapi.responses import JSONResponse
+from fastapi import Form
 
 def login_required(view):
     @wraps(view)
@@ -14,6 +16,21 @@ def login_required(view):
             return RedirectResponse('/login')
         return await view(request, *args, **kwargs)
     return wrapped
+
+def grant_admin(username: str):
+    db: Session = SessionLocal()
+    try:
+        user = db.query(User).filter_by(username=username).first()
+        if not user:
+            print(f"User '{username}' not found!")
+            return
+        user.is_admin = True
+        db.commit()
+        print(f"User '{username}' is now an admin.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        db.close()
 
 def admin_required(view):
     @wraps(view)
@@ -66,17 +83,38 @@ async def post_login(request: Request, username: str = Form(), password: str = F
     return RedirectResponse('/', status_code=303)
 
 
-def grant_admin(username: str):
-    db: Session = SessionLocal()
-    try:
-        user = db.query(User).filter_by(username=username).first()
-        if not user:
-            print(f"User '{username}' not found!")
-            return
-        user.is_admin = True
+@app.get('/profile', response_class=HTMLResponse)
+@login_required
+async def profile(request: Request, db: Session = Depends(get_db)):
+    user_id = request.session['user_id']
+    user = db.query(User).get(user_id)
+
+    if user:
+        user.username = request.session.get('user_username', user.username)
+        user.email = request.session.get('user_email', user.email)
+        return templates.TemplateResponse('profile.html', {'request': request, 'user': user})
+    else:
+        return templates.TemplateResponse('profile.html', {'request': request, 'error': 'User not found!'})
+
+
+
+@app.post('/profile', response_class=JSONResponse)
+@login_required
+async def post_profile(request: Request, username: str = Form(...), email: str = Form(...), db: Session = Depends(get_db)):
+    user_id = request.session['user_id']
+    user = db.query(User).get(user_id)
+
+    if user:
+        user.username = username
+        user.email = email
         db.commit()
-        print(f"User '{username}' is now an admin.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        db.close()
+
+        request.session['user_username'] = username
+        request.session['user_email'] = email
+
+        return JSONResponse(content={"success": True, "message": "Profile updated successfully!"})
+    else:
+        return JSONResponse(content={"success": False, "message": "User not found!"}, status_code=404)
+
+
+
