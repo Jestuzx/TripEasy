@@ -2,7 +2,7 @@
 
 {% block content %}
 <head>
-    <title>Main page</title>
+    <title>Main Page</title>
     <link rel="stylesheet" href="/static/css/dark-theme.css">
 </head>
 
@@ -10,6 +10,7 @@
     <div class="container">
         <h1 class="text-right">Welcome to the Main Page</h1>
         <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
+        <button class="btn btn-secondary" id="goToTour">Move on to tours</button>
     </div>
 </body>
 {% endblock %}
@@ -18,6 +19,10 @@
 <script>
     document.getElementById('goToProfile').addEventListener('click', function () {
         window.location.href = '/profile';
+    });
+
+    document.getElementById('goToTour').addEventListener('click', function () {
+        window.location.href = '/tour';
     });
 </script>
 {% endblock %}
