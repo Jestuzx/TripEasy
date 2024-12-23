@@ -4,11 +4,9 @@ from functools import wraps
 from sqlalchemy.exc import IntegrityError
 from config import app, templates
 from db import get_db, User, Tour, SessionLocal
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi import Request, Form, Depends, File, Response, UploadFile
-from fastapi.responses import JSONResponse
-from fastapi import Form
-
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi import Request, Form, Depends, File, Response, UploadFile, HTTPException
+import shutil
 def login_required(view):
     @wraps(view)
     async def wrapped(request: Request, *args, **kwargs):
@@ -34,9 +32,10 @@ def grant_admin(username: str):
 
 def admin_required(view):
     @wraps(view)
-    async def wrapped(request:Request, *args, **kwargs):
-        if not request.session.get('is_admin', False):
-            return RedirectResponse('/')
+    async def wrapped(request: Request, *args, **kwargs):
+        is_admin = request.session.get('is_admin', False)
+        if not is_admin:
+            raise HTTPException(status_code=403, detail="Admin access required.")
         return await view(request, *args, **kwargs)
     return wrapped
 
@@ -116,5 +115,22 @@ async def post_profile(request: Request, username: str = Form(...), email: str =
     else:
         return JSONResponse(content={"success": False, "message": "User not found!"}, status_code=404)
 
+@app.get("/create-tour", response_class=HTMLResponse)
+async def get_create_tour(request: Request):
+    return templates.TemplateResponse("tourCreate.html", {"request": request})
 
+@app.post('/create-tour')
+async def tour_create(request: Request,text: str = Form(),image: UploadFile = File(),db: Session = Depends(get_db),):
+    try:
+        image_path = f'static/images/{image.filename}'
+        with open(image_path, 'wb') as file:
+            shutil.copyfileobj(image.file, file)
 
+        tour = Tour(text=text, images=image_path)
+        db.add(tour)
+        db.commit()
+        db.refresh(tour)
+
+        return {"message": "Tour created successfully"}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)

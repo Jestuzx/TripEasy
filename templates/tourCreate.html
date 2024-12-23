@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Tour{% endblock %}
+
+{% block content %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tourModal">
+        Create Tour
+    </button>
+    <div id="tours" class="mt-4"></div>
+
+    <div class="modal fade" id="tourModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="tourModalLabel">Create Tour</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="tourText" class="form-label">Tour Description</label>
+                        <input type="text" id="tourText" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tourImage" class="form-label">Upload Image</label>
+                        <input type="file" id="tourImage" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="tourSave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#tourSave').click(function () {
+            let formData = new FormData();
+            formData.append('text', $('#tourText').val());
+            formData.append('image', document.getElementById('tourImage').files[0]);
+            $.ajax('/create-tour', {
+                type: 'POST',
+                async: true,
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    let tours = document.getElementById('tours');
+                    tours.innerHTML = `<h3>${$('#tourText').val()}</h3>` + tours.innerHTML;
+                    tours.innerHTML = `<img src="/static/images/${$('#tourImage').val()}" alt="Tour image" class="img-fluid mb-3">` + tours.innerHTML;
+                    $('#tourText').val('');
+                    $('#tourImage').val('');
+                },
+                error: function (xhr, status, error) {
+                    alert('Failed to create tour. Please try again.');
+                }
+            });
+        });
+    </script>
+{% endblock %}

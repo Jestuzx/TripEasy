@@ -38,6 +38,7 @@ class User(ModelDateDataMixin):
 class Tour(ModelDateDataMixin):
     __tablename__ = 'tour'
 
-    id = Column(Integer,primary_key=True)
+    tour_id = Column(Integer, primary_key=True)
     text = Column(String(256), nullable=False)
-    image = Column(Text, nullable=False)
+    image = Column(String, nullable=False)
+
