@@ -121,7 +121,6 @@ async def get_create_tour(request: Request):
 
 @app.post('/create-tour')
 async def tour_create(request: Request,text: str = Form(),image: UploadFile = File(),db: Session = Depends(get_db),):
-    try:
         image_path = f'static/images/{image.filename}'
         with open(image_path, 'wb') as file:
             shutil.copyfileobj(image.file, file)
@@ -132,5 +131,5 @@ async def tour_create(request: Request,text: str = Form(),image: UploadFile = Fi
         db.refresh(tour)
 
         return {"message": "Tour created successfully"}
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    # except Exception as e:
+    #     return JSONResponse({"error": str(e)}, status_code=500)

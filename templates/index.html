@@ -1,28 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<head>
-    <title>Main Page</title>
-    <link rel="stylesheet" href="/static/css/dark-theme.css">
-</head>
-
-<body>
-    <div class="container">
-        <h1 class="text-right">Welcome to the Main Page</h1>
-        <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
-        <button class="btn btn-secondary" id="goToTour">Move on to tours</button>
+    <div class="wrapper">
+        <div class="sidebar">
+            <a href="/" class="btn">Go to the Main Page</a>
+        </div>
+        <div class="main-content">
+            <h1>Welcome to TripEasy!</h1>
+            <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
+            <div class="tour-container">
+                {% for tour in tours %}
+                    <div class="tour-item">
+                        <p class="tour-text">{{ tour.text }}</p>
+                        <img class="tour-image" src="{{ tour.image }}" alt="Tour Image">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-</body>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    document.getElementById('goToProfile').addEventListener('click', function () {
-        window.location.href = '/profile';
-    });
-
-    document.getElementById('goToTour').addEventListener('click', function () {
-        window.location.href = '/tour';
-    });
-</script>
+    <script>
+        document.getElementById('goToProfile').addEventListener('click', function () {
+            window.location.href = '/profile';
+        });
+    </script>
 {% endblock %}

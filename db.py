@@ -40,5 +40,5 @@ class Tour(ModelDateDataMixin):
 
     tour_id = Column(Integer, primary_key=True)
     text = Column(String(256), nullable=False)
-    image = Column(String, nullable=False)
+    images = Column(String, nullable=False)
 
