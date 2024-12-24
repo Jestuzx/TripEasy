@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Tours</title>
+    <script>
+        function deleteTour(tourId) {
+            fetch(`/delete-tour/${tourId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Tour deleted successfully") {
+                    document.getElementById(`tour-row-${tourId}`).remove();
+                } else {
+                    alert("Error deleting tour.");
+                }
+            })
+            .catch(error => {
+                alert("Error deleting tour.");
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Admin Panel - Tours</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Tour ID</th>
+                <th>Text</th>
+                <th>Price</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tour in tours %}
+            <tr id="tour-row-{{ tour.id }}">
+                <td>{{ tour.id }}</td>
+                <td>{{ tour.text }}</td>
+                <td>{{ tour.price }}</td>
+                <td><img src="{{ tour.image }}" alt="Tour Image" width="100"></td>
+                <td>
+                    <button onclick="deleteTour({{ tour.id }})">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

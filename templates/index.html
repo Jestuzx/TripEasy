@@ -1,4 +1,7 @@
+<!-- index.html -->
 {% extends 'base.html' %}
+
+{% block title %}Home - TripEasy{% endblock %}
 
 {% block content %}
     <div class="wrapper">
@@ -8,22 +11,37 @@
         <div class="main-content">
             <h1>Welcome to TripEasy!</h1>
             <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
-            <div class="tour-container">
+            <div class="tour-container mt-4">
                 {% for tour in tours %}
-                    <div class="tour-item">
+                    <div class="tour-item mb-4">
                         <p class="tour-text">{{ tour.text }}</p>
-                        <img class="tour-image" src="{{ tour.image }}" alt="Tour Image">
+                        <img class="tour-image img-fluid" src="{{ tour.image }}" alt="Tour Image">
+                        <p><strong>Price:</strong> ${{ tour.price }}</p>
+                        <!-- Кнопка для перехода на страницу бронирования -->
+                        <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
                     </div>
+                {% else %}
+                    <p>No tours available at the moment.</p>
                 {% endfor %}
             </div>
         </div>
     </div>
-{% endblock %}
 
-{% block scripts %}
-    <script>
-        document.getElementById('goToProfile').addEventListener('click', function () {
-            window.location.href = '/profile';
-        });
-    </script>
+    <!-- Модальное окно для уведомления об успешном бронировании -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Booking Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalMessage">
+                    <!-- Сообщение о бронировании -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

@@ -21,6 +21,10 @@
                         <input type="text" id="tourText" class="form-control">
                     </div>
                     <div class="mb-3">
+                        <label for="tourPrice" class="form-label">Tour Price (in USD)</label>
+                        <input type="number" id="tourPrice" class="form-control" min="1" step="1">
+                    </div>
+                    <div class="mb-3">
                         <label for="tourImage" class="form-label">Upload Image</label>
                         <input type="file" id="tourImage" class="form-control">
                     </div>
@@ -32,11 +36,16 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
     <script>
         $('#tourSave').click(function () {
             let formData = new FormData();
             formData.append('text', $('#tourText').val());
+            formData.append('price', $('#tourPrice').val());
             formData.append('image', document.getElementById('tourImage').files[0]);
+
             $.ajax('/create-tour', {
                 type: 'POST',
                 async: true,
@@ -46,9 +55,18 @@
                 contentType: false,
                 success: function (response) {
                     let tours = document.getElementById('tours');
-                    tours.innerHTML = `<h3>${$('#tourText').val()}</h3>` + tours.innerHTML;
-                    tours.innerHTML = `<img src="/static/images/${$('#tourImage').prop('files')[0].name}" alt="Tour image" class="img-fluid mb-3">` + tours.innerHTML;
+                    let newTourHTML = `
+                        <div class="card mb-3">
+                            <img src="/static/images/${response.image}" class="card-img-top" alt="Tour image">
+                            <div class="card-body">
+                                <h5 class="card-title">${response.text}</h5>
+                                <p class="card-text">Price: $${response.price}</p>
+                            </div>
+                        </div>
+                    `;
+                    tours.innerHTML = newTourHTML + tours.innerHTML;
                     $('#tourText').val('');
+                    $('#tourPrice').val('');
                     $('#tourImage').val('');
                 },
                 error: function (xhr, status, error) {

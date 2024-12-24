@@ -1,17 +1,10 @@
-from datetime import datetime
-
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
-
-
-DATABASE_URL = 'sqlite:///app.db'
-
-engine = create_engine(DATABASE_URL)
+from sqlalchemy.orm import relationship, sessionmaker
 
 Base = declarative_base()
+engine = create_engine("sqlite:///app.db")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 def get_db():
     db = SessionLocal()
@@ -20,24 +13,29 @@ def get_db():
     finally:
         db.close()
 
-class ModelDateDataMixin(Base):
-    __abstract__ = True
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password = Column(String)
+    email = Column(String)
+    is_admin = Column(Boolean, default=False)
 
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    modified_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+class Tour(Base):
+    __tablename__ = "tours"
+    id = Column(Integer, primary_key=True, index=True)
+    text = Column(String)
+    price = Column(Integer)
+    image = Column(String)
 
-class User(ModelDateDataMixin):
-    __tablename__ = 'user'
+class Booking(Base):
+    __tablename__ = "bookings"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    tour_id = Column(Integer, ForeignKey('tours.id'))
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(50), nullable=False, unique=True)
-    password = Column(String(256), nullable=False)
-    email = Column(String(),nullable=False,unique=True)
-    is_admin = Column(Boolean,default=False)
+    user = relationship("User", back_populates="bookings")
+    tour = relationship("Tour", back_populates="bookings")
 
-class Tour(ModelDateDataMixin):
-    __tablename__ = 'tour'
-
-    tour_id = Column(Integer, primary_key=True)
-    text = Column(String(256), nullable=False)
-    image = Column(String, nullable=False)
+User.bookings = relationship("Booking", back_populates="user", cascade="all, delete")
+Tour.bookings = relationship("Booking", back_populates="tour", cascade="all, delete")

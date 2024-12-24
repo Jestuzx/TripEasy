@@ -2,70 +2,47 @@
 
 {% block content %}
     <h1>User Profile</h1>
-
     {% if user %}
         <p><strong>Username:</strong> <span id="user-username">{{ user.username }}</span></p>
         <p><strong>Email:</strong> <span id="user-email">{{ user.email }}</span></p>
+
+        <h3>Booked Tours</h3>
+        <ul id="bookedTours">
+            {% for booking in bookings %}
+                <li id="booking-{{ booking.id }}">
+                    <strong>{{ booking.tour.text }}</strong> - ${{ booking.tour.price }}
+                    <button class="btn btn-danger btn-sm" onclick="cancelBooking({{ booking.id }})">Cancel</button>
+                </li>
+            {% else %}
+                <p>No tours booked yet.</p>
+            {% endfor %}
+        </ul>
     {% else %}
         <p>{{ error }}</p>
     {% endif %}
-
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
-        Edit profile
-    </button>
-
-    <div class="modal fade" id="profileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="profileModalLabel">Edit Profile</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <h1 id="message"></h1>
-                    <input type="text" id="usernameUpdate" value="{{ user.username }}">
-                    <input type="email" id="emailUpdate" value="{{ user.email }}">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="profileSave">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block scripts %}
     <script>
-        $('#profileSave').click(function () {
-            let data = new FormData();
-            data.append('username', $('#usernameUpdate').val());
-            data.append('email', $('#emailUpdate').val());
-
-            $.ajax({
-                url: '/profile',
-                type: 'POST',
-                async: true,
-                dataType: 'json',
-                data: data,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.success) {
-                        $('#user-username').html($('#usernameUpdate').val());
-                        $('#user-email').html($('#emailUpdate').val());
-                        $('#message').html('Profile updated successfully!');
-                    } else {
-                        $('#message').html('An error occurred: ' + response.message);
+        function cancelBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                $.ajax({
+                    url: '/cancel-booking',
+                    type: 'POST',
+                    data: { booking_id: bookingId },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to cancel the booking. Please try again.');
                     }
-                },
-                error: function (xhr, status, error) {
-                    $('#message').html('An error occurred: ' + error);
-                }
-            });
-        });
+                });
+            }
+        }
     </script>
-
-    <link rel="stylesheet" href="/static/css/style.css">
 {% endblock %}
-
