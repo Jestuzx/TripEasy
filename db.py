@@ -24,7 +24,7 @@ class ModelDateDataMixin(Base):
     __abstract__ = True
 
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    modifiedd_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    modified_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
 class User(ModelDateDataMixin):
     __tablename__ = 'user'
@@ -40,5 +40,4 @@ class Tour(ModelDateDataMixin):
 
     tour_id = Column(Integer, primary_key=True)
     text = Column(String(256), nullable=False)
-    images = Column(String, nullable=False)
-
+    image = Column(String, nullable=False)

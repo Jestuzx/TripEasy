@@ -47,7 +47,7 @@
                 success: function (response) {
                     let tours = document.getElementById('tours');
                     tours.innerHTML = `<h3>${$('#tourText').val()}</h3>` + tours.innerHTML;
-                    tours.innerHTML = `<img src="/static/images/${$('#tourImage').val()}" alt="Tour image" class="img-fluid mb-3">` + tours.innerHTML;
+                    tours.innerHTML = `<img src="/static/images/${$('#tourImage').prop('files')[0].name}" alt="Tour image" class="img-fluid mb-3">` + tours.innerHTML;
                     $('#tourText').val('');
                     $('#tourImage').val('');
                 },
