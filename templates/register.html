@@ -1,18 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    {% if is_invalid_data %}
-        <h3>Username or email is already taken</h3>
-    {% endif %}
-    <form method="post">
-        <input name="username" type="text" placeholder="Enter your username:">
-        <input name="password" type="password" placeholder="Enter your password:">
-        <input name="email" type="email"placeholder="Enter your email: ">
-        <input type="submit" value="Enter">
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Register - My Website{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4 mt-5">
+                <h2 class="text-center mb-4">Create Account</h2>
+
+                {% if is_invalid_data %}
+                    <div class="alert alert-danger text-center">
+                        <strong>Error!</strong> Username or email is already taken.
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input name="username" type="text" id="username" class="form-control" placeholder="Enter your username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input name="password" type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <p>Already have an account? <a href="/login">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

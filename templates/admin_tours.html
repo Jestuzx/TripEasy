@@ -1,30 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Tours</title>
-    <script>
-        function deleteTour(tourId) {
-            fetch(`/delete-tour/${tourId}`, {
-                method: 'DELETE',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message === "Tour deleted successfully") {
-                    document.getElementById(`tour-row-${tourId}`).remove();
-                } else {
-                    alert("Error deleting tour.");
-                }
-            })
-            .catch(error => {
-                alert("Error deleting tour.");
-            });
-        }
-    </script>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel - Tours{% endblock %}
+
+{% block content %}
     <h1>Admin Panel - Tours</h1>
+    <!-- Кнопка для открытия модального окна -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tourModal">
+        Create Tour
+    </button>
+
+    <div id="tours" class="mt-4"></div>
+
+    <!-- Модальное окно для создания тура -->
+    <div class="modal fade" id="tourModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="tourModalLabel">Create Tour</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="tourText" class="form-label">Tour Description</label>
+                        <input type="text" id="tourText" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tourPrice" class="form-label">Tour Price (in USD)</label>
+                        <input type="number" id="tourPrice" class="form-control" min="1" step="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tourImage" class="form-label">Upload Image</label>
+                        <input type="file" id="tourImage" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="tourSave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица с уже созданными турами -->
     <table border="1">
         <thead>
             <tr>
@@ -49,5 +66,71 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Сохранение нового тура
+        $('#tourSave').click(function () {
+            let formData = new FormData();
+            formData.append('text', $('#tourText').val());
+            formData.append('price', $('#tourPrice').val());
+            formData.append('image', document.getElementById('tourImage').files[0]);
+
+            $.ajax('/admin/create-tour', {
+                type: 'POST',
+                async: true,
+                dataType: 'json',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.message === "Tour created successfully") {
+                        let tours = document.getElementById('tours');
+                        let newTourHTML = `
+                            <tr id="tour-row-${response.id}">
+                                <td>${response.id}</td>
+                                <td>${response.text}</td>
+                                <td>${response.price}</td>
+                                <td><img src="/static/images/${response.image}" alt="Tour image" width="100"></td>
+                                <td><button onclick="deleteTour(${response.id})">Delete</button></td>
+                            </tr>
+                        `;
+                        tours.innerHTML = newTourHTML + tours.innerHTML;
+
+                        // Очистка полей формы
+                        $('#tourText').val('');
+                        $('#tourPrice').val('');
+                        $('#tourImage').val('');
+
+                        // Закрытие модального окна
+                        $('#tourModal').modal('hide');
+                    } else {
+                        alert('Failed to create tour. Please try again.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Failed to create tour. Please try again.');
+                }
+            });
+        });
+
+        // Удаление тура
+        function deleteTour(tourId) {
+            fetch(`/delete-tour/${tourId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Tour deleted successfully") {
+                    document.getElementById(`tour-row-${tourId}`).remove();
+                } else {
+                    alert("Error deleting tour.");
+                }
+            })
+            .catch(error => {
+                alert("Error deleting tour.");
+            });
+        }
+    </script>
+{% endblock %}

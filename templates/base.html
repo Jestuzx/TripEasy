@@ -10,8 +10,13 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="content">
-        {% block content %}{% endblock %}
+    <div class="button-container">
+        <a href="/" class="btn btn-primary btn-sm mb-3">Back to Home</a>
+    </div>
+
+    <div class="container mt-3">
+        {% block content %}
+        {% endblock %}
     </div>
 
     {% block scripts %}

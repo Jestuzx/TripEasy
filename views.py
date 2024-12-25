@@ -9,13 +9,15 @@ from fastapi import Request, Form, Depends, File, Response, UploadFile, HTTPExce
 import shutil
 import os
 from typing import Optional
-
+from datetime import datetime
 
 def admin_required(view):
     @wraps(view)
     async def wrapped(request: Request, *args, **kwargs):
         user_id = request.session.get('user_id')
-        if not user_id or not request.session.get('is_admin', False):
+        is_admin = request.session.get('is_admin', False)
+        print(f"Admin check: user_id={user_id}, is_admin={is_admin}")
+        if not user_id or not is_admin:
             raise HTTPException(status_code=403, detail="Admin access required.")
         return await view(request, *args, **kwargs)
     return wrapped
@@ -90,11 +92,23 @@ async def post_login(request: Request, username: str = Form(), password: str = F
 @login_required
 async def profile(request: Request, db: Session = Depends(get_db)):
     user = db.query(User).get(request.session['user_id'])
-    return templates.TemplateResponse('profile.html', {'request': request, 'user': user})
 
-@app.post('/profile', response_class=JSONResponse)
+    # Fetch the bookings related to the user
+    bookings = db.query(Booking).filter(Booking.user_id == user.id).all()
+
+    return templates.TemplateResponse(
+        'profile.html',
+        {
+            'request': request,
+            'user': user,
+            'bookings': bookings
+        }
+    )
+
+
+@app.post('/profile', response_class=HTMLResponse)
 @login_required
-async def profile(
+async def update_profile(
         request: Request,
         username: str = Form(),
         email: str = Form(),
@@ -105,25 +119,50 @@ async def profile(
     user.email = email
     db.commit()
     db.refresh(user)
-    return {}
 
-@app.get("/create-tour", response_class=HTMLResponse)
-async def get_create_tour(request: Request):
-    return templates.TemplateResponse("tourCreate.html", {"request": request})
+    # Return the updated user and the success message to the template
+    success_message = "Profile updated successfully!"
+    bookings = db.query(Booking).filter(Booking.user_id == user.id).all()
 
-@app.post('/create-tour')
+    return templates.TemplateResponse(
+        'profile.html',
+        {
+            'request': request,
+            'user': user,
+            'bookings': bookings,
+            'success_message': success_message
+        }
+    )
+
+
+@app.get("/admin/tours", response_class=HTMLResponse)
+@login_required
 @admin_required
-async def tour_create(request: Request, price: str=Form(), text: str = Form(), image: UploadFile = File(), db: Session = Depends(get_db)):
+async def get_admin_tours(request: Request, db: Session = Depends(get_db)):
+    tours = db.query(Tour).all()
+    return templates.TemplateResponse("admin_tours.html", {"request": request, "tours": tours})
+
+@app.post('/admin/create-tour')
+@admin_required
+@login_required
+async def create_tour(request: Request, price: str = Form(), text: str = Form(), image: UploadFile = File(), db: Session = Depends(get_db)):
     image_path = f'static/images/{image.filename}'
     with open(image_path, 'wb') as file:
         shutil.copyfileobj(image.file, file)
 
-    tour = Tour(text=text, image=image_path, price=price)
+    tour = Tour(text=text, price=price, image=image_path)
     db.add(tour)
     db.commit()
     db.refresh(tour)
 
-    return {"message": "Tour created successfully"}
+    return JSONResponse(content={
+        "message": "Tour created successfully",
+        "id": tour.id,
+        "text": tour.text,
+        "price": tour.price,
+        "image": tour.image
+    })
+
 
 @app.get("/admin/tours", response_class=HTMLResponse)
 @admin_required
@@ -152,56 +191,103 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> Optiona
 
 @app.get('/book-tour/{tour_id}', response_class=HTMLResponse)
 async def book_tour(request: Request, tour_id: int, db: Session = Depends(get_db)):
+    # Fetch the tour by ID
     tour = db.query(Tour).filter(Tour.id == tour_id).first()
     if not tour:
-        return {"message": "Tour not found!"}
-    return templates.TemplateResponse('bookTour.html', {'request': request, 'tour': tour})
+        return templates.TemplateResponse(
+            "error.html",  # Создайте error.html, если у вас его нет
+            {"request": request, "message": "Tour not found!"}
+        )
+    return templates.TemplateResponse(
+        "bookTour.html",  # Рендерим страницу бронирования с деталями тура
+        {"request": request, "tour": tour}
+    )
 
 
-# app.py
-@app.post('/book-tour/{tour_id}')
-async def process_payment(request: Request, tour_id: int,
-                          card_number: str = Form(...),
-                          card_expiry: str = Form(...),
-                          card_cvc: str = Form(...),
-                          db: Session = Depends(get_db)):
-    # Ищем тур по ID
+@app.post('/book-tour/{tour_id}', response_class=HTMLResponse)
+async def process_payment(
+        request: Request,
+        tour_id: int,
+        card_number: str = Form(...),
+        card_expiry: str = Form(...),
+        card_cvc: str = Form(...),
+        people_count: int = Form(...),
+        tour_date: str = Form(...),
+        db: Session = Depends(get_db)
+):
+
     tour = db.query(Tour).filter(Tour.id == tour_id).first()
-
     if not tour:
-        return {"message": "Tour not found!"}
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": "Tour not found!"}
+        )
 
-    # Получаем текущего пользователя
+
+    total_price = tour.price * people_count
+
+
     user = get_current_user(request, db)
     if not user:
-        return {"message": "User not found!"}
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": "User not found!"}
+        )
 
-    # Сохраняем информацию о бронировании
-    booking = Booking(user_id=user.id, tour_id=tour.id)
+
+    try:
+        tour_date_obj = datetime.strptime(tour_date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+
+    booking = Booking(
+        user_id=user.id,
+        tour_id=tour.id,
+        people_count=people_count,
+        tour_date=tour_date_obj,
+        total_price=total_price
+    )
+
     db.add(booking)
     db.commit()
 
-    # Создаем сообщение для отображения
-    message = f"Tour '{tour.text}' booked successfully by {user.username}!"
+    print(
+        f"Tour '{tour.text}' booked successfully by {user.username} for {people_count} people! Total Price: ${total_price}")
 
-    # Отправляем сообщение и тур обратно на страницу
-    return templates.TemplateResponse('bookTour.html', {
-        'request': request,
-        'tour': tour,
-        'message': message
-    })
+    return RedirectResponse(url="/profile", status_code=303)
 
 
 @app.post('/cancel-booking')
 @login_required
-async def cancel_booking(request: Request, db: Session = Depends(get_db), booking_id: int = Form()):
+async def cancel_booking(request: Request, db: Session = Depends(get_db), booking_id: int = Form(...)):
+    # Get the user ID from the session
+    user_id = request.session.get('user_id')
+
+    # Find the booking by its ID
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
+
     if not booking:
         return JSONResponse({'success': False, 'message': 'Booking not found.'})
 
-    if booking.user_id != request.user.id:
+    # Check if the current user is the one who made the booking
+    if booking.user_id != user_id:
         return JSONResponse({'success': False, 'message': 'You are not authorized to cancel this booking.'})
 
+    # Delete the booking and commit the changes
     db.delete(booking)
     db.commit()
+
     return JSONResponse({'success': True, 'message': 'Booking canceled successfully!'})
+
+
+@app.post('/search')
+async def search(inp: str = Form(...), db: Session = Depends(get_db)):
+    tours = db.query(Tour).filter(Tour.text.ilike(f'%{inp}%')).all()
+    results = [{
+        'id': tour.id,
+        'text': tour.text,
+        'image': tour.image,
+        'price': tour.price
+    } for tour in tours]
+
+    return JSONResponse(content={"result": results})

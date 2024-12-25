@@ -1,3 +1,4 @@
+/* Основные стили для всей страницы */
 * {
     margin: 0;
     padding: 0;
@@ -12,131 +13,116 @@ body {
     min-height: 100vh;
 }
 
-.wrapper {
+/* Стили для кнопки, которая закреплена в левом верхнем углу */
+.button-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 100px;
+    height: 100px;
     display: flex;
-    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Основные стили для контейнера страницы */
+.container {
+    margin-top: 50px;
+}
+
+/* Стили для карточки формы */
+.card {
+    background-color: #2b2b2b;
+    border-radius: 10px;
+    border: 1px solid #444;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card h2 {
+    color: #ffffff;
+    text-transform: uppercase;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Стили для формы */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form .form-label {
+    font-size: 1rem;
+    color: #e0e0e0;
+}
+
+form .form-control {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+form .form-control::placeholder {
+    color: #888;
+}
+
+form .form-control:focus {
+    border-color: #ff6347;
+    background-color: #444;
+}
+
+/* Стили для кнопки отправки */
+.d-grid .btn {
+    padding: 12px;
+    font-size: 1.1rem;
+    background-color: #ff6347;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.d-grid .btn:hover {
+    background-color: #ff4500;
+}
+
+/* Стили для сообщения об ошибке */
+.alert {
+    background-color: #f44336;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Стили для ссылки на страницу регистрации */
+.text-center a {
+    color: #ff6347;
+    text-decoration: none;
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+}
+
+/* Дополнительные стили для страницы */
+body {
+    background-color: #121212;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100vh;
 }
 
-.sidebar {
-    width: 250px;
-    background-color: #1e1e1e;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
-    padding-top: 20px;
-    padding-left: 20px;
-}
-
-.main-content {
-    flex: 1;
-    background-color: #121212;
-    padding: 20px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-h1 {
-    font-size: 3rem;
-    font-weight: bold;
-    text-align: center;
-    margin: 20px 0;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    opacity: 0.9;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-}
-
-
-button {
-    background-color: transparent;
-    border: 2px solid #e0e0e0;
-    color: #e0e0e0;
-    padding: 12px 24px;
-    font-size: 1.1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-right: 20px;
-    transition: all 0.3s ease;
-    width: 180px;
-}
-
-button:hover {
-    background-color: #444;
-    color: #ff6347;
-    border-color: #ff6347;
-    transform: translateY(-5px);
-}
-
-.tour-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 30px;
-}
-
-.tour-item {
-    background-color: #1f1f1f;
-    border: 2px solid #333;
-    border-radius: 15px;
-    padding: 20px;
-    width: 300px;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.tour-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-}
-
-.tour-text {
-    color: #d1d1d1;
-    font-size: 1.2rem;
-    margin: 15px 0;
-}
-
-.tour-image {
+.container {
+    max-width: 400px;
     width: 100%;
-    height: auto;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.tour-image:hover {
-    transform: scale(1.05);
-}
-
-.btn {
-    display: inline-block;
-    background-color: #333;
-    color: #e0e0e0;
-    padding: 12px 24px;
-    font-size: 1.1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    margin-top: 20px;
-    width: auto;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.btn:hover {
-    background-color: #555;
-    color: #ff6347;
-    border-color: #ff6347;
-    transform: scale(1.05);
-}
-
-#goToProfile {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+    padding: 20px;
 }

@@ -1,23 +1,23 @@
-<!-- index.html -->
 {% extends 'base.html' %}
 
 {% block title %}Home - TripEasy{% endblock %}
 
 {% block content %}
     <div class="wrapper">
-        <div class="sidebar">
-            <a href="/" class="btn">Go to the Main Page</a>
-        </div>
         <div class="main-content">
             <h1>Welcome to TripEasy!</h1>
+
+            <!-- Simple Search Bar -->
+            <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
+
             <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
-            <div class="tour-container mt-4">
+
+            <div class="tour-container mt-4" id="tourList">
                 {% for tour in tours %}
-                    <div class="tour-item mb-4">
+                    <div class="tour-item mb-4" data-tour-id="{{ tour.id }}">
                         <p class="tour-text">{{ tour.text }}</p>
                         <img class="tour-image img-fluid" src="{{ tour.image }}" alt="Tour Image">
                         <p><strong>Price:</strong> ${{ tour.price }}</p>
-                        <!-- Кнопка для перехода на страницу бронирования -->
                         <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
                     </div>
                 {% else %}
@@ -27,7 +27,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для уведомления об успешном бронировании -->
     <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -36,7 +35,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modalMessage">
-                    <!-- Сообщение о бронировании -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -44,4 +42,66 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Go to Profile button
+    document.getElementById('goToProfile').addEventListener('click', function () {
+        window.location.href = '/profile';
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function () {
+        let searchTerm = this.value;  // Get the value typed in the search bar
+
+        if (searchTerm) {
+            // Perform the AJAX request to search
+            $.ajax({
+                url: '/search',  // The search endpoint
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    inp: searchTerm  // Send the search term
+                },
+                success: function (response) {
+                    let tours = response.result;  // Get the search results (full tour data)
+                    let tourList = document.getElementById('tourList');
+                    tourList.innerHTML = '';  // Clear the current tour list
+
+                    if (tours.length > 0) {
+                        // Display the search results with full details
+                        tours.forEach(function(tour) {
+                            let tourItem = document.createElement('div');
+                            tourItem.classList.add('tour-item', 'mb-4');
+                            tourItem.innerHTML = `
+                                <p class="tour-text">${tour.text}</p>
+                                <img class="tour-image img-fluid" src="${tour.image}" alt="Tour Image">
+                                <p><strong>Price:</strong> $${tour.price}</p>
+                                <a href="/book-tour/${tour.id}" class="btn btn-success">Book Now</a>
+                            `;
+                            tourList.appendChild(tourItem);
+                        });
+                    } else {
+                        tourList.innerHTML = '<p>No tours found matching your search.</p>';
+                    }
+                }
+            });
+        } else {
+            // If there's no search term, reset the list
+            document.getElementById('tourList').innerHTML = `
+                {% for tour in tours %}
+                    <div class="tour-item mb-4" data-tour-id="{{ tour.id }}">
+                        <p class="tour-text">{{ tour.text }}</p>
+                        <img class="tour-image img-fluid" src="{{ tour.image }}" alt="Tour Image">
+                        <p><strong>Price:</strong> ${{ tour.price }}</p>
+                        <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
+                    </div>
+                {% else %}
+                    <p>No tours available at the moment.</p>
+                {% endfor %}
+            `;
+        }
+    });
+</script>
 {% endblock %}

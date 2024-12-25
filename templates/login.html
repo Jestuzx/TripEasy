@@ -1,14 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Enter your username">
-        <input type="password" name="password" placeholder="Enter your password">
-        <input type="submit">
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Login - My Website{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2>Login</h2>
+        {% if is_invalid_data %}
+            <div class="alert">
+                Username or password is incorrect.
+            </div>
+        {% endif %}
+        <form method="post">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
+
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+
+            <div class="d-grid">
+                <button type="submit" class="btn">Login</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <p>Don't have an account? <a href="/registration">Register</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

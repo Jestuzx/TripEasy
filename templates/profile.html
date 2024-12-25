@@ -3,8 +3,17 @@
 {% block content %}
     <h1>User Profile</h1>
     {% if user %}
-        <p><strong>Username:</strong> <span id="user-username">{{ user.username }}</span></p>
-        <p><strong>Email:</strong> <span id="user-email">{{ user.email }}</span></p>
+        <form action="/profile" method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
 
         <h3>Booked Tours</h3>
         <ul id="bookedTours">
@@ -17,6 +26,7 @@
                 <p>No tours booked yet.</p>
             {% endfor %}
         </ul>
+
     {% else %}
         <p>{{ error }}</p>
     {% endif %}
@@ -24,6 +34,14 @@
 
 {% block scripts %}
     <script>
+        // Display the modal with success message if it exists
+        {% if success_message %}
+            $(document).ready(function() {
+                $('#profileUpdateModal').modal('show');
+                $('#modalMessage').text("{{ success_message }}");
+            });
+        {% endif %}
+
         function cancelBooking(bookingId) {
             if (confirm('Are you sure you want to cancel this booking?')) {
                 $.ajax({
@@ -46,3 +64,21 @@
         }
     </script>
 {% endblock %}
+
+<!-- Modal for Profile Update Success -->
+<div class="modal fade" id="profileUpdateModal" tabindex="-1" aria-labelledby="profileUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileUpdateModalLabel">Profile Update</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalMessage">
+                <!-- Success message will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
