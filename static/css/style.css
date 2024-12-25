@@ -1,4 +1,4 @@
-/* Основные стили для всей страницы */
+
 * {
     margin: 0;
     padding: 0;
@@ -13,7 +13,7 @@ body {
     min-height: 100vh;
 }
 
-/* Стили для кнопки, которая закреплена в левом верхнем углу */
+
 .button-container {
     position: fixed;
     top: 20px;
@@ -25,12 +25,12 @@ body {
     align-items: center;
 }
 
-/* Основные стили для контейнера страницы */
+
 .container {
     margin-top: 50px;
 }
 
-/* Стили для карточки формы */
+
 .card {
     background-color: #2b2b2b;
     border-radius: 10px;
@@ -47,7 +47,7 @@ body {
     text-align: center;
 }
 
-/* Стили для формы */
+
 form {
     display: flex;
     flex-direction: column;
@@ -77,7 +77,7 @@ form .form-control:focus {
     background-color: #444;
 }
 
-/* Стили для кнопки отправки */
+
 .d-grid .btn {
     padding: 12px;
     font-size: 1.1rem;
@@ -92,7 +92,6 @@ form .form-control:focus {
     background-color: #ff4500;
 }
 
-/* Стили для сообщения об ошибке */
 .alert {
     background-color: #f44336;
     color: white;
@@ -102,7 +101,7 @@ form .form-control:focus {
     margin-bottom: 20px;
 }
 
-/* Стили для ссылки на страницу регистрации */
+
 .text-center a {
     color: #ff6347;
     text-decoration: none;
@@ -112,7 +111,7 @@ form .form-control:focus {
     text-decoration: underline;
 }
 
-/* Дополнительные стили для страницы */
+
 body {
     background-color: #121212;
     display: flex;

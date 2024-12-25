@@ -4,14 +4,13 @@
 
 {% block content %}
     <h1>Admin Panel - Tours</h1>
-    <!-- Кнопка для открытия модального окна -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tourModal">
         Create Tour
     </button>
 
     <div id="tours" class="mt-4"></div>
 
-    <!-- Модальное окно для создания тура -->
+
     <div class="modal fade" id="tourModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tourModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -41,7 +40,7 @@
         </div>
     </div>
 
-    <!-- Таблица с уже созданными турами -->
+
     <table border="1">
         <thead>
             <tr>
@@ -70,7 +69,7 @@
 
 {% block scripts %}
     <script>
-        // Сохранение нового тура
+
         $('#tourSave').click(function () {
             let formData = new FormData();
             formData.append('text', $('#tourText').val());
@@ -98,12 +97,12 @@
                         `;
                         tours.innerHTML = newTourHTML + tours.innerHTML;
 
-                        // Очистка полей формы
+
                         $('#tourText').val('');
                         $('#tourPrice').val('');
                         $('#tourImage').val('');
 
-                        // Закрытие модального окна
+
                         $('#tourModal').modal('hide');
                     } else {
                         alert('Failed to create tour. Please try again.');
@@ -115,7 +114,6 @@
             });
         });
 
-        // Удаление тура
         function deleteTour(tourId) {
             fetch(`/delete-tour/${tourId}`, {
                 method: 'DELETE',

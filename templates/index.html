@@ -7,7 +7,7 @@
         <div class="main-content">
             <h1>Welcome to TripEasy!</h1>
 
-            <!-- Форма фильтрации по цене -->
+
             <form id="filterForm" method="get" class="mb-4">
                 <div class="row">
                     <div class="col-md-3">
@@ -24,7 +24,6 @@
                 </div>
             </form>
 
-            <!-- Простая строка поиска -->
             <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
 
             <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
@@ -63,12 +62,10 @@
 
 {% block scripts %}
 <script>
-    // Обработчик для кнопки "Go to Profile"
     document.getElementById('goToProfile').addEventListener('click', function() {
-        window.location.href = '/profile';  // Замените '/profile' на реальный URL профиля
+        window.location.href = '/profile';
     });
 
-    // Функция отправки формы фильтрации и обновления списка туров
     $('#filterForm').submit(function (e) {
         e.preventDefault();
 
@@ -76,7 +73,7 @@
         let maxPrice = $('#maxPrice').val();
 
         $.ajax({
-            url: '/filtered-tours',  // Обработчик для фильтрации
+            url: '/filtered-tours',
             type: 'GET',
             data: {
                 min_price: minPrice,
@@ -84,7 +81,7 @@
             },
             success: function (response) {
                 let tourList = document.getElementById('tourList');
-                tourList.innerHTML = '';  // Очистка текущего списка туров
+                tourList.innerHTML = '';
 
                 if (response.tours.length > 0) {
                     response.tours.forEach(function(tour) {
@@ -105,13 +102,12 @@
         });
     });
 
-    // Поиск по турами
     document.getElementById('searchInput').addEventListener('input', function () {
         let searchTerm = this.value;
 
         if (searchTerm) {
             $.ajax({
-                url: '/search',  // Конечная точка поиска
+                url: '/search',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -140,7 +136,6 @@
                 }
             });
         } else {
-            // Если нет поиска, перезагружаем список туров
             document.getElementById('tourList').innerHTML = ` {% for tour in tours %}
                 <div class="tour-item mb-4" data-tour-id="{{ tour.id }}">
                     <p class="tour-text">{{ tour.text }}</p>
