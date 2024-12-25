@@ -93,7 +93,6 @@ async def post_login(request: Request, username: str = Form(), password: str = F
 async def profile(request: Request, db: Session = Depends(get_db)):
     user = db.query(User).get(request.session['user_id'])
 
-    # Fetch the bookings related to the user
     bookings = db.query(Booking).filter(Booking.user_id == user.id).all()
 
     return templates.TemplateResponse(
@@ -120,7 +119,6 @@ async def update_profile(
     db.commit()
     db.refresh(user)
 
-    # Return the updated user and the success message to the template
     success_message = "Profile updated successfully!"
     bookings = db.query(Booking).filter(Booking.user_id == user.id).all()
 
@@ -191,15 +189,14 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> Optiona
 
 @app.get('/book-tour/{tour_id}', response_class=HTMLResponse)
 async def book_tour(request: Request, tour_id: int, db: Session = Depends(get_db)):
-    # Fetch the tour by ID
     tour = db.query(Tour).filter(Tour.id == tour_id).first()
     if not tour:
         return templates.TemplateResponse(
-            "error.html",  # Создайте error.html, если у вас его нет
+            "error.html",
             {"request": request, "message": "Tour not found!"}
         )
     return templates.TemplateResponse(
-        "bookTour.html",  # Рендерим страницу бронирования с деталями тура
+        "bookTour.html",
         {"request": request, "tour": tour}
     )
 
@@ -260,20 +257,17 @@ async def process_payment(
 @app.post('/cancel-booking')
 @login_required
 async def cancel_booking(request: Request, db: Session = Depends(get_db), booking_id: int = Form(...)):
-    # Get the user ID from the session
+
     user_id = request.session.get('user_id')
 
-    # Find the booking by its ID
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
 
     if not booking:
         return JSONResponse({'success': False, 'message': 'Booking not found.'})
 
-    # Check if the current user is the one who made the booking
     if booking.user_id != user_id:
         return JSONResponse({'success': False, 'message': 'You are not authorized to cancel this booking.'})
 
-    # Delete the booking and commit the changes
     db.delete(booking)
     db.commit()
 
@@ -291,3 +285,18 @@ async def search(inp: str = Form(...), db: Session = Depends(get_db)):
     } for tour in tours]
 
     return JSONResponse(content={"result": results})
+
+@app.get("/filtered-tours")
+async def get_filtered_tours(min_price: float = 1, max_price: float = None, db: Session = Depends(get_db)):
+    query = db.query(Tour)
+
+    if min_price is not None:
+        query = query.filter(Tour.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Tour.price <= max_price)
+
+    tours = query.all()
+
+    return {"tours": tours}
+
