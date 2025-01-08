@@ -3,59 +3,53 @@
 {% block title %}Home - TripEasy{% endblock %}
 
 {% block content %}
-    <div class="wrapper">
-        <div class="main-content">
-            <h1>Welcome to TripEasy!</h1>
+    <div class="content-container">
+        <div class="wrapper">
+            <div class="main-content">
+                <h1>Welcome to TripEasy!</h1>
 
-            <form id="filterForm" method="get" class="mb-4">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="minPrice" class="form-label">Min Price</label>
-                        <input type="number" id="minPrice" name="min_price" class="form-control" placeholder="Min Price">
+                <form id="filterForm" method="get" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="minPrice" class="form-label">Min Price</label>
+                            <input type="number" id="minPrice" name="min_price" class="form-control" placeholder="Min Price">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="maxPrice" class="form-label">Max Price</label>
+                            <input type="number" id="maxPrice" name="max_price" class="form-control" placeholder="Max Price">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary mt-4">Filter</button>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="maxPrice" class="form-label">Max Price</label>
-                        <input type="number" id="maxPrice" name="max_price" class="form-control" placeholder="Max Price">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary mt-4">Filter</button>
-                    </div>
+                </form>
+
+                <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
+                    <a href="/registration" class="btn btn-outline-primary">Register</a>
                 </div>
-            </form>
 
-            <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
-
-            <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
-                <a href="/registration" class="btn btn-outline-primary">Register</a>
-            </div>
-
-            <div class="tour-container mt-4" id="tourList">
-                {% for tour in tours %}
-                    <div class="tour-item mb-4" data-tour-id="{{ tour.id }}">
-                        <p class="tour-text">{{ tour.text }}</p>
-                        <img class="tour-image img-fluid" src="{{ tour.image }}" alt="Tour Image">
-                        <p><strong>Price:</strong> ${{ tour.price }}</p>
-                        <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
-                    </div>
-                {% else %}
-                    <p>No tours available at the moment.</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bookingModalLabel">Booking Confirmation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modalMessage">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="tour-container mt-4" id="tourList">
+                    {% for tour in tours %}
+                        <div class="tour-item">
+                            <div class="card h-100">
+                                <img class="tour-image card-img-top" src="{{ tour.image }}" alt="Tour Image">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ tour.title }}</h5>
+                                    <p class="tour-text">{{ tour.text }}</p>
+                                    <p><strong>Price:</strong> ${{ tour.price }}</p>
+                                    <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
+                                </div>
+                                <div class="card-footer">
+                                    <small class="text-body-secondary">Last updated 3 mins ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p>No tours available at the moment.</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -88,12 +82,20 @@
                 if (response.tours.length > 0) {
                     response.tours.forEach(function(tour) {
                         let tourItem = document.createElement('div');
-                        tourItem.classList.add('tour-item', 'mb-4');
+                        tourItem.classList.add('tour-item');
                         tourItem.innerHTML = `
-                            <p class="tour-text">${tour.text}</p>
-                            <img class="tour-image img-fluid" src="${tour.image}" alt="Tour Image">
-                            <p><strong>Price:</strong> $${tour.price}</p>
-                            <a href="/book-tour/${tour.id}" class="btn btn-success">Book Now</a>
+                            <div class="card h-100">
+                                <img class="tour-image card-img-top" src="${tour.image}" alt="Tour Image">
+                                <div class="card-body">
+                                    <h5 class="card-title">${tour.title}</h5>
+                                    <p class="tour-text">${tour.text}</p>
+                                    <p><strong>Price:</strong> $${tour.price}</p>
+                                    <a href="/book-tour/${tour.id}" class="btn btn-success">Book Now</a>
+                                </div>
+                                <div class="card-footer">
+                                    <small class="text-body-secondary">Last updated 3 mins ago</small>
+                                </div>
+                            </div>
                         `;
                         tourList.appendChild(tourItem);
                     });
@@ -123,12 +125,20 @@
                     if (tours.length > 0) {
                         tours.forEach(function(tour) {
                             let tourItem = document.createElement('div');
-                            tourItem.classList.add('tour-item', 'mb-4');
+                            tourItem.classList.add('tour-item');
                             tourItem.innerHTML = `
-                                <p class="tour-text">${tour.text}</p>
-                                <img class="tour-image img-fluid" src="${tour.image}" alt="Tour Image">
-                                <p><strong>Price:</strong> $${tour.price}</p>
-                                <a href="/book-tour/${tour.id}" class="btn btn-success">Book Now</a>
+                                <div class="card h-100">
+                                    <img class="tour-image card-img-top" src="${tour.image}" alt="Tour Image">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${tour.title}</h5>
+                                        <p class="tour-text">${tour.text}</p>
+                                        <p><strong>Price:</strong> $${tour.price}</p>
+                                        <a href="/book-tour/${tour.id}" class="btn btn-success">Book Now</a>
+                                    </div>
+                                    <div class="card-footer">
+                                        <small class="text-body-secondary">Last updated 3 mins ago</small>
+                                    </div>
+                                </div>
                             `;
                             tourList.appendChild(tourItem);
                         });
@@ -138,13 +148,7 @@
                 }
             });
         } else {
-            document.getElementById('tourList').innerHTML = ` {% for tour in tours %}
-                <div class="tour-item mb-4" data-tour-id="{{ tour.id }}">
-                    <p class="tour-text">{{ tour.text }}</p>
-                    <img class="tour-image img-fluid" src="{{ tour.image }}" alt="Tour Image">
-                    <p><strong>Price:</strong> ${{ tour.price }}</p>
-                    <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
-                </div> {% endfor %}`;
+            document.getElementById('tourList').innerHTML = '';
         }
     });
 </script>
