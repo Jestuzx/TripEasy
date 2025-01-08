@@ -104,7 +104,6 @@ async def profile(request: Request, db: Session = Depends(get_db)):
         }
     )
 
-
 @app.post('/profile', response_class=HTMLResponse)
 @login_required
 async def update_profile(

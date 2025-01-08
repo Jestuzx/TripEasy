@@ -7,7 +7,6 @@
         <div class="main-content">
             <h1>Welcome to TripEasy!</h1>
 
-
             <form id="filterForm" method="get" class="mb-4">
                 <div class="row">
                     <div class="col-md-3">
@@ -26,7 +25,10 @@
 
             <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
 
-            <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
+                <a href="/registration" class="btn btn-outline-primary">Register</a>
+            </div>
 
             <div class="tour-container mt-4" id="tourList">
                 {% for tour in tours %}
@@ -147,4 +149,3 @@
     });
 </script>
 {% endblock %}
-
