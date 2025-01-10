@@ -3,33 +3,28 @@
 {% block title %}Home - TripEasy{% endblock %}
 
 {% block content %}
-    <div class="content-container">
-        <div class="wrapper">
-            <div class="main-content">
-                <h1>Welcome to TripEasy!</h1>
 
-                <form id="filterForm" method="get" class="mb-4">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="minPrice" class="form-label">Min Price</label>
-                            <input type="number" id="minPrice" name="min_price" class="form-control" placeholder="Min Price">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="maxPrice" class="form-label">Max Price</label>
-                            <input type="number" id="maxPrice" name="max_price" class="form-control" placeholder="Max Price">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary mt-4">Filter</button>
-                        </div>
-                    </div>
-                </form>
-
-                <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
-
-                <div class="d-flex justify-content-between mt-4">
-                    <button class="btn btn-primary" id="goToProfile">Go to Profile</button>
-                    <a href="/registration" class="btn btn-outline-primary">Register</a>
+    <div>
+        <form id="filterForm" method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="minPrice" class="form-label">Min Price</label>
+                    <input type="number" id="minPrice" name="min_price" class="form-control" placeholder="Min Price">
                 </div>
+                <div class="col-md-3">
+                    <label for="maxPrice" class="form-label">Max Price</label>
+                    <input type="number" id="maxPrice" name="max_price" class="form-control" placeholder="Max Price">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary mt-4">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <input type="text" id="searchInput" class="form-control" placeholder="Search tours...">
+
+
+    </div>
 
                 <div class="tour-container mt-4" id="tourList">
                     {% for tour in tours %}
@@ -41,9 +36,6 @@
                                     <p class="tour-text">{{ tour.text }}</p>
                                     <p><strong>Price:</strong> ${{ tour.price }}</p>
                                     <a href="/book-tour/{{ tour.id }}" class="btn btn-success">Book Now</a>
-                                </div>
-                                <div class="card-footer">
-                                    <small class="text-body-secondary">Last updated 3 mins ago</small>
                                 </div>
                             </div>
                         </div>
@@ -58,10 +50,6 @@
 
 {% block scripts %}
 <script>
-    document.getElementById('goToProfile').addEventListener('click', function() {
-        window.location.href = '/profile';
-    });
-
     $('#filterForm').submit(function (e) {
         e.preventDefault();
 

@@ -23,14 +23,6 @@ body {
     height: 100vh;
 }
 
-
-.container {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-}
-
-
 .content-container {
     display: flex;
     flex-direction: column;
