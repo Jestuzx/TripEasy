@@ -43,3 +43,4 @@ class Booking(Base):
     user = relationship("User", back_populates="bookings")
 
     tour = relationship("Tour", back_populates="bookings")
+

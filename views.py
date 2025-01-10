@@ -298,4 +298,3 @@ async def get_filtered_tours(min_price: float = 1, max_price: float = None, db: 
     tours = query.all()
 
     return {"tours": tours}
-
